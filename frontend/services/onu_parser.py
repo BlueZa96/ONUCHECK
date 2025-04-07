@@ -3,19 +3,26 @@ from ..utils.onu_regex import match_onu_line_by_regex_template, is_start_of_onu_
 def split_onu_entries(raw_text):
     """Разделяет сырые строки в структурированные записи ONU"""
     entries = []
-    buffer = ""
+    prev_line = ""
+    waiting_for_check = False  #Флаг, указывает закончена ли строка, или она еще продолжится.
 
-    for line in raw_text.strip().splitlines():
-        line = line.strip()
+    lines = raw_text.strip().splitlines()
+
+    for line in lines:
         if is_start_of_onu_entry(line):
-            if buffer:
-                entries.append(buffer.strip())
-            buffer = line
-        else:
-            buffer += " " + line
+            if waiting_for_check:
+                entries.append(prev_line) #Целая строка после проверки предедущей
 
-    if buffer:
-        entries.append(buffer.strip())
+            prev_line = line
+            waiting_for_check = True
+        else:
+            prev_line += line
+            entries.append(prev_line) #Соедененная строка если предедущая была повреждена
+            prev_line = ""
+            waiting_for_check = False
+
+    if waiting_for_check and prev_line:
+        entries.append(prev_line) #Последняя строка если она оказалась целой
 
     return entries
 
@@ -27,7 +34,6 @@ def parse_onu_entries(entries, regex_template):
         parsed = parse_onu_line(entry, regex_template)
         if parsed:
             result.append(parsed)
-        #else: print("NO MATCH FOR ENTRY:", repr(entry))  # отладка
     return result
 
 
