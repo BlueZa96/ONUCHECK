@@ -8,7 +8,7 @@ ONU_DATA_LINE_REGEX = re.compile(
     r"(?P<LOID>\S+)\s+"
     r"(?P<Status>\S+)\s+"
     r"(?P<ConfigStatus>\S+)\s+"
-    r"(?P<ActiveTime>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})"
+    r"(?P<ActiveTime>(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}|N/A)?)"
 )
 
 ONU_STATS_LINE_REGEX = re.compile(
